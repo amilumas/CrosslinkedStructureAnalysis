@@ -1,0 +1,6 @@
+The structure analysis code in Exampleburning_structure.cpp gives an example template for the structure analysis done in the main text.
+This code is provided as supporting information. 
+The algorithm follows the method outlined in the paper. 
+The code is designed specifically for the systems studied in the work with the crosslinker types hardcoded. 
+This code was written by Amulya Pervaje (amulyapervaje@gmail.com). 
+To run the example compile the c++ code and execute. The output of this code is provided in the output folder. 
