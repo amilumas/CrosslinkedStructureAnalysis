@@ -1,0 +1,2 @@
+Filename nClusters gAtoms massCluster1 nCluster1 massCluster2 nCluster2 bigEnough Cedges TotalMass d1Ends d2Ends dxLinkEnds danglingEnds Cloops eActiveJuncs eActiveChains eActiveBeads avgActiveLen avgActiveMass
+Example.data 77 8601 47049.6 1256 20015.6 603 1 1255 314354.88 0 0 5 5 0 2 1 40 40.00 2061.58
