@@ -4,3 +4,14 @@ The algorithm follows the method outlined in the paper.
 The code is designed specifically for the systems studied in the work with the crosslinker types hardcoded. 
 This code was written by Amulya Pervaje (amulyapervaje@gmail.com). 
 To run the example compile the c++ code and execute. The output of this code is provided in the output folder. 
+
+Sample command to compile this code (modify as needed based on your c++ compiler):
+g++ -o Exampleburning_structure Exampleburning_structure.cpp -std=c++11
+to run execute: 
+./Exampleburning_structure 
+to redirect the output, use
+./Exampleburning_structure > output.txt
+
+The c++ code needs to be modified to be used for systems other than the ones used in this work.
+
+
