@@ -1,0 +1,291 @@
+variable	TempSet equal 333.15
+variable 	probprime equal 0.05
+
+variable	f2 equal 0.7757847534
+
+variable        k1 equal 0.028676
+variable        k2 equal 0.010442
+
+variable        k2_k1 equal $(v_k2/v_k1)
+variable	probsec equal 0.1
+variable	probsec1 equal $(v_probprime*v_probsec)
+variable 	ratio equal $(((1-v_f2)*v_k1)/((1 - v_f2)*v_k1 + v_f2*v_k2))
+units		real
+dimension       3
+atom_style	molecular
+bond_style	harmonic
+angle_style 	harmonic
+boundary 	p p p
+neighbor 	2 bin
+read_data       Cross.2000000.data
+pair_style      table spline 100000
+pair_coeff      1*3 1*3  pairtablenhdix.txt mie11
+pair_coeff	4*6 4*6 pairtablenhdix.txt mie22
+pair_coeff	7*10 7*10 pairtablenhdix.txt mie33
+pair_coeff	11*14 11*14 pairtablenhdix.txt mie44
+pair_coeff	15*17 15*17 pairtablenhdix.txt mie55
+pair_coeff	18*20 18*20 pairtablenhdix.txt mie66
+pair_coeff	21 21 pairtablenhdix.txt mie77
+pair_coeff	22*23 22*23 pairtablenhdix.txt mie88
+pair_coeff 	24*26 24*26 pairtablenhdix.txt mie99
+pair_coeff	1*3 4*6 pairtablenhdix.txt mie12
+pair_coeff	1*3 7*10 pairtablenhdix.txt mie13
+pair_coeff	1*3 11*14 pairtablenhdix.txt mie14
+pair_coeff	1*3 15*17 pairtablenhdix.txt mie15
+pair_coeff	1*3 18*20 pairtablenhdix.txt mie16
+pair_coeff	1*3 21 pairtablenhdix.txt mie17
+pair_coeff	1*3 22*23 pairtablenhdix.txt mie18
+pair_coeff	1*3 24*26 pairtablenhdix.txt mie19
+pair_coeff 	4*6 7*10 pairtablenhdix.txt mie23
+pair_coeff	4*6 11*14 pairtablenhdix.txt mie24
+pair_coeff	4*6 15*17 pairtablenhdix.txt mie25
+pair_coeff 	4*6 18*20 pairtablenhdix.txt mie26
+pair_coeff	4*6 21 pairtablenhdix.txt mie27
+pair_coeff	4*6 22*23 pairtablenhdix.txt mie28
+pair_coeff	4*6 24*26 pairtablenhdix.txt mie29
+pair_coeff	7*10 11*14 pairtablenhdix.txt mie34
+pair_coeff	7*10 15*17 pairtablenhdix.txt mie35
+pair_coeff	7*10 18*20 pairtablenhdix.txt mie36
+pair_coeff	7*10 21 pairtablenhdix.txt mie37
+pair_coeff	7*10 22*23 pairtablenhdix.txt mie38
+pair_coeff	7*10 24*26 pairtablenhdix.txt mie39
+pair_coeff	11*14 15*17 pairtablenhdix.txt mie45
+pair_coeff	11*14 18*20 pairtablenhdix.txt mie46
+pair_coeff	11*14 21 pairtablenhdix.txt mie47
+pair_coeff	11*14 22*23 pairtablenhdix.txt mie48
+pair_coeff	11*14 24*26 pairtablenhdix.txt mie49
+pair_coeff	15*17 18*20 pairtablenhdix.txt mie56
+pair_coeff	15*17 21 pairtablenhdix.txt mie57
+pair_coeff	15*17 22*23 pairtablenhdix.txt mie58
+pair_coeff	15*17 24*26 pairtablenhdix.txt mie59
+pair_coeff	18*20 21 pairtablenhdix.txt mie67
+pair_coeff	18*20 22*23 pairtablenhdix.txt mie68
+pair_coeff	18*20 24*26 pairtablenhdix.txt mie69
+pair_coeff	21 22*23 pairtablenhdix.txt mie78
+pair_coeff	21 24*26 pairtablenhdix.txt mie79
+pair_coeff	22*23 24*26 pairtablenhdix.txt mie89
+special_bonds	lj 0.0 0.1 1.0 angle yes extra 13
+timestep 4
+print	"setting npt fix" screen yes
+fix		1 all npt temp ${TempSet} ${TempSet} 400 iso 1.0 1.0 4000
+print	"set npt fix" screen yes
+dump bxyz all xyz 100 begin.xyz
+print	"dummy run" screen yes
+run 0
+print 	"done dummy run" screen yes
+undump bxyz
+dump data all dcd 10000 dfile.dcd
+thermo          100
+restart         1000    xf1.restart xf2.restart
+print "done dump and restart setup" screen yes
+variable	NPGisohbeq equal 4.07433
+variable	TMCDisohbeq equal 4.23853
+variable        Butisohbeq equal 3.92482
+variable 	Methisohbeq equal 3.47883
+variable	polyolends equal 446
+variable        NPGxn equal 24
+variable        TMCDxn equal 50
+variable        Butxn equal 76
+variable        Methxn equal 102
+variable	rci equal 20
+variable	rci equal 20
+variable	rci2 equal 11
+variable 	rcif equal 20
+variable 	rci2f equal 11
+variable	nrci equal ${rci}
+variable	nrci2 equal ${rci2}
+variable 	rcval python rcc
+variable	rcval2 python rcc2
+variable 	Keq python Keqi
+variable	nKeq python nKeqi
+variable	endsreacted equal 0 
+variable        randSeed equal $(round(random(100,10000,1234)))
+print "set initial variables" screen yes
+print "attempting to set rcval from python rcif ${rcif}" screen yes
+python		rcc input 1 v_rcif return v_rcval format ss here """
+def rcc(ind):
+ rc = [0.0001,.1,.2,.3,.4,.5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20, 0.0001, 0.001]
+ return str(rc[int(ind)])
+"""
+python		rcc2 input 1 v_rci2f return v_rcval2 format ss here """
+def rcc2(ind):
+ rc = [0.0001,.1,.2,.3,.4,.5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20, 0.0001, 0.001]
+ return str(rc[int(ind)])
+"""
+
+print "python evaluated rcval ${rcval}" screen yes
+print "attempting to set Keq from python rcif ${rcif}" screen yes
+python 		Keqi input 1 v_rcif return v_Keq format ss here """
+def Keqi(ind):
+ Ke = [300,150,100,75,60,30,15,10,7.5,6,5,4.2857,3.75,3.333,3,2.7272,2.5,2.3077,2.1429,2,1.875,1.7647,1.66667,1.5789,1.5,300,300]
+ return str(Ke[int(ind)])
+"""
+print "python evaluated Keq ${Keq}" screen yes
+variable 	NPGrc equal $(v_rcval + v_NPGisohbeq)
+variable	TMCDrc equal $(v_rcval2 + v_TMCDisohbeq)
+variable	Butrc equal $(v_rcval + v_Butisohbeq)
+variable	Methrc equal $(v_rcval + v_Methisohbeq)
+
+#setting the first slope, run for 10000
+#no need for relaxation, only first value if rc
+
+bond_coeff      $(v_NPGxn+v_rci)  ${Keq} ${NPGisohbeq}
+bond_coeff      $(v_TMCDxn+v_rci2) ${Keq} ${TMCDisohbeq}
+bond_coeff      $(v_Butxn+v_rci) ${Keq} ${Butisohbeq}
+bond_coeff      $(v_Methxn+v_rci) ${Keq} ${Methisohbeq}
+
+print "Updated bond_coeff 's " screen yes
+print           "assigning the fixes " screen yes 
+
+#calculate conversion ln1p and firstslope
+variable 	totpendsreacted equal 100
+variable 	totsendsreacted equal 236
+variable	lconversion equal $((v_totpendsreacted + v_totsendsreacted)/v_polyolends)
+variable	endsreacted equal $(v_totpendsreacted + v_totsendsreacted)
+variable	newconversion equal 0
+variable	ln1p equal $(ln(1-v_lconversion))
+variable 	primeSlope equal $((ln( 1 - v_totpendsreacted/v_polyolends)))
+variable 	secSlope equal $((ln(1  - v_totsendsreacted/v_polyolends)))
+variable	primEnds equal $((1-v_f2)*v_polyolends)
+variable	secEnds equal $((v_f2)*v_polyolends)
+variable        p1 equal $(v_totpendsreacted/v_primEnds)
+variable        p2 equal $(v_totsendsreacted/v_secEnds)
+
+
+
+
+variable        firstslope equal -3.04592074897807e-06
+
+#now the rest of the simulation will try to match the first slope in each 10000 timestep section
+
+reset_timestep 	2000000
+
+variable a loop 300
+label oloop
+print "in oloop a $a" screen yes
+variable 	lrci equal ${nrci}
+variable	rci equal ${nrci}
+variable 	rci2 equal ${nrci2}
+
+unfix           1
+fix    1 all npt temp ${TempSet} ${TempSet} 400 iso 1.0 1.0 4000
+
+variable b loop  0 99
+label iloop
+print "in iloop b $b" screen yes
+python          rcc input 1 v_nrci return v_rcval format ss exists
+python		rcc2 input 1 v_nrci2 return v_rcval2 format ss exists
+print "python evaluated rcval ${rcval}" screen yes
+print "python evaluated rcval2 ${rcval2}" screen yes
+
+variable        NPGrc equal $(v_rcval + v_NPGisohbeq)
+variable        TMCDrc equal $(v_rcval2 + v_TMCDisohbeq)
+variable        Butrc equal $(v_rcval + v_Butisohbeq)
+variable        Methrc equal $(v_rcval + v_Methisohbeq)
+print		"NPGrc ${NPGrc} TMCDrc ${TMCDrc} Butrc ${Butrc} Methrc ${Methrc} " screen yes
+
+print		"assigning the fixes " screen yes
+
+fix 		2 all bond/create 1 3 26 ${NPGrc} $(v_NPGxn+v_nrci) iparam 1 1 jparam 1 24 prob ${probprime} 1239 atype 4
+thermo_style custom step temp vol pe ke enthalpy  epair ebond etotal press pxx pyy pzz density lx f_2[1] f_2[2] 
+run		1
+variable pendsreacted equal $(f_2[2])
+unfix		2
+fix		3 all bond/create 1 6 26 ${TMCDrc} $(v_TMCDxn+v_nrci2) iparam 1 4 jparam 1 24 prob ${probsec1} ${randSeed} atype 4
+print "Assigned fixes " screen yes
+thermo_style custom step temp vol pe ke enthalpy  epair ebond etotal press pxx pyy pzz density lx f_3[1] f_3[2] 
+run 		1
+variable sendsreacted equal $(f_3[2])
+unfix		3
+variable	newbonds equal $(v_pendsreacted + v_sendsreacted)
+variable	totpendsreacted equal $(v_totpendsreacted + v_pendsreacted)
+variable 	totsendsreacted equal $(v_totsendsreacted + v_sendsreacted)
+print	"newbonds ${newbonds} " screen yes
+variable	endsreacted equal $(v_endsreacted + v_newbonds)
+print	"endsreacted ${endsreacted} " screen yes
+variable        newconversion equal $(v_endsreacted/v_polyolends)
+variable        primeSlope equal $((ln( 1 - v_totpendsreacted/v_polyolends)))
+variable        secSlope equal $((ln(1  - v_totsendsreacted/v_polyolends)))
+
+if "${newbonds} > 0" then &
+"print 'relaxation' screen yes" &
+"unfix	1" &
+"fix	1 all nve" &
+"thermo_style custom step temp epair emol etotal press ebond" &
+"min_style	cg" &
+"minimize	1.0e-4 1.0e-6 100 1000" &
+"run 100" &
+"unfix 	1" &
+"fix 	1 all npt temp ${TempSet} ${TempSet} 400 iso 1.0 1.0 4000"
+
+print "done with if statment and rloop " screen yes
+thermo_style custom step temp vol pe ke enthalpy  epair ebond etotal press pxx pyy pzz density lx 
+print "resetting timestep" screen yes
+reset_timestep	$(2000000+10000*(v_a-1)+100*v_b)
+run 100
+next b
+print	"wrote data" screen yes
+jump SELF iloop
+print 	"calculating slope " screen yes
+print	"newconversion ${newconversion} " screen yes
+print	"lconversion ${lconversion} " screen yes
+variable	nln1p equal $(ln(1-v_newconversion))
+print "nln1p ${nln1p} " screen yes
+variable	ln1p equal $(ln(1-v_lconversion))
+print "ln1p ${ln1p} " screen yes
+variable        primeSlope equal $((ln( 1 - v_totpendsreacted/v_polyolends)))
+variable        secSlope equal $((ln(1  - v_totsendsreacted/v_polyolends)))
+variable        p1 equal $(v_totpendsreacted/v_primEnds)
+variable        p2 equal $(v_totsendsreacted/v_secEnds)
+variable	ln1p1 equal -100000000000000000000
+variable        nln1p1 equal -10000000
+variable	nln1p2 equal $(ln(1-v_p2))
+variable        slope equal $((v_nln1p1 - v_ln1p1)/10000)
+variable        ln1p1 equal ${nln1p1}
+variable	ln1p2 equal ${nln1p2}
+
+
+if "${ln1p1} < 0" then &
+"variable       simK2_K1 equal $(v_ln1p2/v_ln1p1)" &
+else &
+"variable       simK2_K1 equal ${k2_k1}"
+
+variable diffRatio equal $(v_simK2_K1 - v_k2_k1)
+
+
+if "${diffRatio} < -0.2 && ${nrci2} < 20" then &
+"variable       nrci2 equal $(v_nrci2 + 1)" &
+"print 'nrci2 is ${nrci2}' screen yes" &
+elif "${diffRatio} > -0.05 && ${nrci2} > 0" &
+"variable       nrci2 equal $(v_nrci2 - 1)" &
+"print 'nrci2 is ${nrci2}' screen yes"
+
+
+
+
+
+print " firstslope ${firstslope} slope ${slope} " screen yes
+variable 	difference equal $(v_firstslope - v_slope)
+print "difference ${difference} " screen yes
+variable 	plusone equal $(v_nrci+1)
+variable 	minusone equal $(v_nrci-1)
+print " plusone ${plusone} minusone ${minusone} " screen yes
+variable 	comp equal $(v_firstslope/2)
+variable	ncomp equal $(-v_firstslope/2)
+
+if "${difference} < ${comp} && ${nrci} < 20" then &
+"variable nrci equal ${plusone}" &
+"print 'nrci equal ${nrci}' screen yes" &
+elif "${difference} > ${ncomp} && ${nrci} > 0" &
+"variable nrci equal ${minusone}" &
+"print 'nrci equal ${nrci}' screen yes" &
+elif "${difference} < ${comp} && ${TempSet} < 1000" &
+"variable TempSet equal $(v_TempSet + 50)" &
+"print 'Tempset is ${TempSet}' screen yes"
+
+print "done if comparison statement " screen yes
+variable        lconversion equal ${newconversion}
+print "lconversion ${lconversion} " screen yes
+write_data Cross.*.data
+next a
+jump SELF oloop
