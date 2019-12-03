@@ -14,4 +14,6 @@ to redirect the output, use
 
 The c++ code needs to be modified to be used for systems other than the ones used in this work.
 
+The subfolder CrosslinkingExample contains supporting information about the method used in the paper.
+
 
